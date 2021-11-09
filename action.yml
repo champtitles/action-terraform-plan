@@ -6,7 +6,6 @@ runs:
     - shell: bash
       run: |
         # global defaults for terraform automation
-        export KUBE_CONFIG_PATH=${KUBE_CONFIG_PATH:-~/.kube/config}
         export TF_INPUT=${TF_INPUT:-false}
         export TF_IN_AUTOMATION=${TF_IN_AUTOMATION:-true}
         export TF_VAR_branch=$(git branch --show-current)
@@ -21,11 +20,6 @@ runs:
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
           eval $(ssh-agent)
           ssh-add - <<< "${SSH_PRIVATE_KEY}"
-        fi
-
-        # target EKS cluster
-        if [ -n "${EKS_CLUSTER}" ]; then
-          aws eks update-kubeconfig --name ${EKS_CLUSTER}
         fi
 
         # execute terraform commands
