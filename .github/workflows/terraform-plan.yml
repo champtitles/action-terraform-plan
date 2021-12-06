@@ -3,11 +3,11 @@ name: Terraform Plan
 on:
   workflow_call:
     inputs:
-      tf_state_bucket:
+      TF_STATE_BUCKET:
         required: true
         type: string
     secrets:
-      ssh_private_key:
+      SSH_PRIVATE_KEY:
         required: true
       AWS_DEFAULT_REGION:
         required: true
@@ -26,15 +26,15 @@ jobs:
         with:
           terraform_version: 0.15.1
 
-      - name: set up ssh key
+      - name: set up env
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
           eval $(ssh-agent)
-          ssh-add - <<< "${{ secrets.ssh_private_key }}"
+          ssh-agent -a /tmp/ssh_agent.sock > /dev/null
+          ssh-add - <<< "${{ secrets.SSH_PRIVATE_KEY }}"
 
-      - name: set env
-        run: |
+          echo "SSH_AUTH_SOCK=/tmp/ssh_agent.sock" >> $GITHUB_ENV
           echo "TF_INPUT=false" >> $GITHUB_ENV
           echo "TF_IN_AUTOMATION=true" >> $GITHUB_ENV
           echo "TF_VAR_git=$(echo ${GITHUB_REPOSITORY} | sed -e 's|.*/||')" >> $GITHUB_ENV
@@ -43,9 +43,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_PREPROD }}" >> $GITHUB_ENV
 
       - name: terraform init
-        run: |
-          echo "TF_VAR_git -> $TF_VAR_git"
-          terraform init -backend-config key=${TF_VAR_git} -backend-config bucket=${{ inputs.tf_state_bucket }}
+        run: terraform init -backend-config key=${TF_VAR_git} -backend-config bucket=${{ inputs.TF_STATE_BUCKET }}
 
       - name: terraform plan
         run: terraform plan
