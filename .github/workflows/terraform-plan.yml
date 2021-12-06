@@ -5,6 +5,7 @@ on:
     inputs:
       tf_state_bucket:
         required: true
+        type: string
     secrets:
       ssh_private_key:
         required: true
