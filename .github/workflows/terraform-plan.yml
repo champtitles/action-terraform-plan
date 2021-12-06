@@ -5,20 +5,15 @@ on:
     inputs:
       tf_state_bucket:
         required: true
-        type: string
     secrets:
       ssh_private_key:
         required: true
-        type: string
       AWS_DEFAULT_REGION:
         required: true
-        type: string
       AWS_ACCESS_KEY_ID:
         required: true
-        type: string
       AWS_SECRET_ACCESS_KEY:
         required: true
-        type: string
 
 jobs:
   plan:
